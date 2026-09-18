@@ -4,18 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>شوالیه شجاع | Idle Knight RPG</title>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- انیمیشن‌ها از فایل خارجی بارگذاری میشن -->
+    <link rel="stylesheet" href="animations.css">
+
     <style>
         :root {
-            --bg: #090a0f;
-            --panel: rgba(22, 27, 34, 0.85);
-            --border: rgba(255, 255, 255, 0.1);
+            --bg: #0b0f19;
+            --card: #151c2c;
             --accent: #6366f1;
             --gold: #f59e0b;
-            --hp-green: #10b981;
-            --enemy-red: #ef4444;
-            --text: #f3f4f6;
-            --text-dim: #9ca3af;
+            --hp-p: #10b981;
+            --hp-e: #ef4444;
+            --border: rgba(255, 255, 255, 0.08);
+            --text-dim: #94a3b8;
         }
 
         * {
@@ -28,499 +31,323 @@
         }
 
         body {
-            background-color: var(--bg);
-            background-image:
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(239, 68, 68, 0.1) 0px, transparent 50%);
-            color: var(--text);
+            background: var(--bg);
+            color: #f8fafc;
             min-height: 100vh;
             display: flex;
+            flex-direction: column; /* این رو اضافه کن */
             justify-content: center;
             align-items: center;
-            padding: 12px;
+            padding: 8px;
         }
 
         .game-card {
             width: 100%;
-            max-width: 440px;
-            background: var(--panel);
-            backdrop-filter: blur(16px);
+            max-width: 410px;
+            background: var(--card);
             border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 18px;
+            border-radius: 20px;
+            padding: 14px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            gap: 10px;
             position: relative;
-            overflow: hidden;
         }
 
-        /* بخش وضعیت هیرو بالا */
-        .hero-bar {
+        /* هدر جمع و جور وضعیت */
+        .top-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border);
-            padding: 10px 14px;
-            border-radius: 16px;
-            gap: 10px;
+            background: rgba(0,0,0,0.25);
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
         }
-        .hero-name {
-            font-weight: 800;
-            font-size: 0.95rem;
+
+        .badge-group { display: flex; gap: 8px; }
+        .badge {
+            background: rgba(255,255,255,0.06);
+            padding: 3px 8px;
+            border-radius: 8px;
             display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* کنترل فشرده دانجن */
+        .dungeon-strip {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            padding: 6px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+        .d-ctrl { display: flex; align-items: center; gap: 4px; }
+        .d-btn {
+            background: #20293d;
+            border: 1px solid var(--border);
+            color: #fff;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+        .d-input {
+            width: 44px;
+            height: 28px;
+            background: #0b0f19;
+            border: 1px solid var(--border);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            font-weight: 700;
+        }
+
+        /* نوار و آرنای بازی */
+        .arena {
+            background: rgba(0,0,0,0.35);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
             align-items: center;
             gap: 6px;
-            white-space: nowrap;
-        }
-        .badges {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: nowrap;
-        }
-        .gold-badge, .xp-badge {
-            background: rgba(245, 158, 11, 0.15);
-            color: var(--gold);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-weight: 800;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            white-space: nowrap;
-        }
-        .xp-badge {
-            background: rgba(99, 102, 241, 0.15);
-            color: #c7d2fe;
-            border: 1px solid rgba(99, 102, 241, 0.35);
-        }
-
-        /* میدان نبرد */
-        .battle-arena {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 20px 14px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-            min-height: 200px;
-            justify-content: center;
         }
         .enemy-avatar {
-            font-size: 4.2rem;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
-            transition: transform 0.1s ease;
+            font-size: 3.5rem;
+            transition: transform 0.1s;
+            cursor: pointer;
         }
-        .enemy-avatar.hit {
-            transform: scale(0.85) rotate(-8deg);
-            filter: drop-shadow(0 0 20px var(--enemy-red));
-        }
-        .enemy-name {
-            font-weight: 800;
-            font-size: 1.05rem;
-            color: #fca5a5;
-            text-align: center;
-            line-height: 1.2;
-        }
+        .enemy-title { font-weight: 800; font-size: 0.95rem; color: #fca5a5; }
 
-        /* نوارهای سلامتی */
-        .hp-wrapper {
+        /* نوارهای جان مشترک */
+        .hp-box { width: 100%; display: flex; flex-direction: column; gap: 3px; }
+        .hp-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-dim); }
+        .hp-bar {
             width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .hp-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: var(--text-dim);
-            gap: 8px;
-        }
-        .hp-track {
-            width: 100%;
-            height: 10px;
-            background: rgba(255,255,255,0.06);
-            border-radius: 10px;
+            height: 8px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 6px;
             overflow: hidden;
-            border: 1px solid var(--border);
         }
-        .hp-fill {
-            height: 100%;
-            width: 100%;
-            transition: width 0.25s ease-out;
-            border-radius: 10px;
-        }
-        .hp-fill.player { background: linear-gradient(90deg, #059669, var(--hp-green)); }
-        .hp-fill.enemy { background: linear-gradient(90deg, #b91c1c, var(--enemy-red)); }
+        .hp-fill { height: 100%; width: 100%; transition: width 0.2s linear; }
+        .hp-p { background: var(--hp-p); }
+        .hp-e { background: var(--hp-e); }
 
-        /* لاگ و رویدادها */
-        .combat-log {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
-            padding: 8px 12px;
-            font-size: 0.8rem;
-            min-height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: var(--text-dim);
-            border-left: 3px solid var(--accent);
-        }
-
-        /* آمار هیرو */
-        .stats-grid {
+        /* باکس آمار و لاگ جمع و جور */
+        .stats-strip {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
         }
-        .stat-card {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 8px 12px;
+        .stat-item {
+            background: rgba(255,255,255,0.03);
+            padding: 6px 10px;
+            border-radius: 8px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            font-size: 0.82rem;
         }
-        .stat-val { font-weight: 800; color: #fff; }
-
-        /* کنترل دانجن */
-        .dungeon-bar {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 10px 12px;
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 10px;
-            align-items: center;
-        }
-        .dungeon-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            min-width: 0;
-        }
-        .dungeon-title {
-            font-weight: 900;
-            font-size: 0.9rem;
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .dungeon-sub {
-            color: var(--text-dim);
-            font-size: 0.75rem;
-            line-height: 1.2;
-        }
-        .dungeon-controls {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
-        .step-btn {
-            background: rgba(255,255,255,0.06);
-            border: 1px solid var(--border);
-            color: var(--text);
-            width: 40px;
-            height: 36px;
-            border-radius: 12px;
-            font-weight: 900;
-            cursor: pointer;
-        }
-        .step-btn:active { transform: scale(0.95); }
-        .dungeon-input {
-            width: 84px;
-            height: 36px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
+        .log-box {
             background: rgba(0,0,0,0.25);
-            color: var(--text);
-            text-align: center;
-            font-weight: 900;
-            outline: none;
+            border-right: 3px solid var(--accent);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.74rem;
+            color: var(--text-dim);
+            height: 28px;
+            line-height: 16px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
 
-        /* دکمه‌های اکشن */
-        .action-grid {
+        /* دکمه‌های اصلی مخصوص تاچ موبایل */
+        .actions {
             display: grid;
-            grid-template-columns: 1.5fr 1fr 1fr;
+            grid-template-columns: 1.6fr 1fr 1fr;
             gap: 8px;
+            margin-top: 2px;
         }
         .btn {
             border: none;
-            outline: none;
-            cursor: pointer;
-            padding: 12px 8px;
-            border-radius: 14px;
+            padding: 12px 6px;
+            border-radius: 12px;
             font-weight: 800;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            color: #fff;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 4px;
-            transition: all 0.15s ease;
+            gap: 3px;
         }
-        .btn:active { transform: scale(0.95); }
-        .btn-attack {
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            color: #fff;
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
-        }
-        .btn-auto {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            color: var(--text);
-        }
-        .btn-auto.active {
-            background: linear-gradient(135deg, #b91c1c, #ef4444);
-            color: #fff;
-            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
-        }
-        .btn-shop {
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            color: var(--gold);
-        }
+        .btn:active { transform: scale(0.96); }
+        .btn-atk { background: var(--accent); }
+        .btn-auto { background: #20293d; border: 1px solid var(--border); }
+        .btn-auto.active { background: var(--hp-e); }
+        .btn-shop { background: #78350f; color: #fde68a; }
 
-        /* پنجره مودال فروشگاه */
+        /* مودال شاپ */
         .modal {
             position: absolute;
             inset: 0;
-            background: rgba(9, 10, 15, 0.95);
-            backdrop-filter: blur(20px);
-            z-index: 50;
-            padding: 16px;
+            background: rgba(11, 15, 25, 0.98);
+            border-radius: 20px;
+            padding: 14px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
+            z-index: 10;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.2s ease;
+            transition: opacity 0.2s;
         }
         .modal.open { opacity: 1; pointer-events: auto; }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
-        }
-        .shop-tabs {
-            display: flex;
-            gap: 6px;
-            overflow-x: auto;
-            padding-bottom: 4px;
-        }
+        .modal-head { display: flex; justify-content: space-between; align-items: center; }
+        .tabs { display: flex; gap: 6px; overflow-x: auto; }
         .tab-btn {
-            background: rgba(255,255,255,0.05);
+            background: #1b2333;
             border: 1px solid var(--border);
             color: var(--text-dim);
-            padding: 6px 12px;
-            border-radius: 10px;
-            font-size: 0.78rem;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
             cursor: pointer;
             white-space: nowrap;
         }
-        .tab-btn.active {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
+        .tab-btn.active { background: var(--accent); color: #fff; }
         .shop-list {
             flex: 1;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            padding-left: 2px;
+            gap: 6px;
         }
-        .shop-item {
+        .shop-row {
             background: rgba(255,255,255,0.03);
             border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 10px 12px;
+            border-radius: 10px;
+            padding: 8px 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 10px;
-        }
-        .shop-item-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-        .shop-item-name { font-weight: 700; font-size: 0.88rem; }
-        .shop-item-stat { font-size: 0.74rem; color: #34d399; }
-        .btn-buy {
-            background: var(--gold);
-            color: #000;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 10px;
-            font-weight: 800;
             font-size: 0.8rem;
-            cursor: pointer;
-            white-space: nowrap;
         }
-        .btn-buy:disabled {
-            background: rgba(255,255,255,0.1);
-            color: var(--text-dim);
-            cursor: not-allowed;
-        }
-        .close-btn {
-            background: transparent;
+        .buy-btn {
+            background: var(--gold);
             border: none;
-            color: var(--text);
-            font-size: 1.2rem;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-weight: 800;
             cursor: pointer;
         }
-
-        /* افکت Shake صفحه */
-        .shake { animation: shakeAnim 0.25s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shakeAnim {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(2px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
-            40%, 60% { transform: translate3d(3px, 0, 0); }
-        }
+        .buy-btn:disabled { opacity: 0.3; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
 <div class="game-card" id="gameCard">
-    <!-- هدر پلیر -->
-    <div class="hero-bar">
-        <div class="hero-name">
-            <span>🛡️</span>
-            <span id="heroName">شوالیه شجاع</span>
+    <!-- وضعیت شوالیه -->
+    <div class="top-row">
+        <div style="display:flex; align-items:center; gap:6px;">
+            <span>🛡️ شوالیه</span>
+            <span style="color:var(--text-dim); font-size:0.75rem;">(Lv.<span id="playerLevelVal">1</span>)</span>
         </div>
-        <div class="badges">
-            <div class="xp-badge" title="XP / Level">
-                <span>✨</span>
-                <span id="xpVal">0</span>
-                <span style="opacity:.7">Lv.</span>
-                <span id="playerLevelVal">1</span>
-            </div>
-            <div class="gold-badge">
-                <span>🪙</span>
-                <span id="goldVal">50</span>
-            </div>
+        <div class="badge-group">
+            <div class="badge" style="color:#818cf8;">XP: <span id="xpVal">0</span></div>
+            <div class="badge" style="color:var(--gold);">🪙 <span id="goldVal">50</span></div>
         </div>
     </div>
 
-    <!-- کنترل دانجن -->
-    <div class="dungeon-bar">
-        <div class="dungeon-info">
-            <div class="dungeon-title">
-                <span>🕳️ دانجن</span>
-                <span style="color:#c7d2fe">لول انتخابی:</span>
-                <span id="dungeonLevelLabel" style="font-weight:900">1</span>
-                <span style="color:var(--text-dim); font-weight:700">/</span>
-                <span style="color:var(--text-dim); font-weight:900">باز شده:</span>
-                <span id="dungeonMaxLabel" style="font-weight:900; color:#fff">1</span>
-            </div>
-            <div class="dungeon-sub" id="dungeonHint">
-                هرچی لول بالاتر: دشمن قوی‌تر، پاداش بیشتر. لول‌های خیلی پایین‌تر وقتی لول بالا باز شد، کم‌ارزش می‌شن.
-            </div>
+    <!-- دانجن فشرده -->
+    <div class="dungeon-strip">
+        <div>
+            <span>🕳️ طبقه دانجن:</span>
+            <strong id="dungeonLevelLabel">1</strong> / <span id="dungeonMaxLabel" style="color:var(--text-dim)">1</span>
         </div>
-
-        <div class="dungeon-controls">
-            <button class="step-btn" onclick="changeDungeon(-1)">-</button>
-            <input class="dungeon-input" id="dungeonInput" type="number" min="1" step="1" value="1" onchange="setDungeonFromInput()">
-            <button class="step-btn" onclick="changeDungeon(1)">+</button>
+        <div class="d-ctrl">
+            <button class="d-btn" onclick="changeDungeon(-1)">-</button>
+            <input class="d-input" id="dungeonInput" type="number" min="1" value="1" onchange="setDungeonFromInput()">
+            <button class="d-btn" onclick="changeDungeon(1)">+</button>
         </div>
     </div>
 
     <!-- میدان نبرد -->
-    <div class="battle-arena">
-        <div class="enemy-avatar" id="enemyIcon">👾</div>
-        <div class="enemy-name" id="enemyName">Green Slime</div>
-
-        <!-- نوار جان دشمن -->
-        <div class="hp-wrapper">
+    <div class="arena">
+        <div class="enemy-avatar" id="enemyIcon" onclick="playerAttack()">👾</div>
+        <div class="enemy-title" id="enemyName">Green Slime</div>
+        
+        <!-- جان دشمن -->
+        <div class="hp-box">
             <div class="hp-meta">
-                <span>سلامت دشمن</span>
+                <span>جان دشمن</span>
                 <span id="enemyHpText">100 / 100</span>
             </div>
-            <div class="hp-track">
-                <div class="hp-fill enemy" id="enemyHpFill"></div>
-            </div>
+            <div class="hp-bar"><div class="hp-fill hp-e" id="enemyHpFill"></div></div>
         </div>
     </div>
 
-    <!-- وضعیت سلامت پلیر -->
-    <div class="hp-wrapper">
+    <!-- جان قهرمان -->
+    <div class="hp-box">
         <div class="hp-meta">
-            <span>سلامت قهرمان</span>
+            <span>جان شما</span>
             <span id="playerHpText">150 / 150</span>
         </div>
-        <div class="hp-track">
-            <div class="hp-fill player" id="playerHpFill"></div>
-        </div>
+        <div class="hp-bar"><div class="hp-fill hp-p" id="playerHpFill"></div></div>
     </div>
 
-    <!-- لاگ اتفاقات -->
-    <div class="combat-log" id="combatLog">
-        وارد دانجن شدی! برای نبرد آماده باش... ⚔️
+    <!-- آمار و لاگ -->
+    <div class="stats-strip">
+        <div class="stat-item"><span>⚔️ حمله:</span><span id="atkVal" style="color:#818cf8">10</span></div>
+        <div class="stat-item"><span>🛡️ دفاع:</span><span id="defVal" style="color:#34d399">10</span></div>
     </div>
-
-    <!-- آمار قدرت -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <span style="color: #818cf8;">⚔️ قدرت حمله:</span>
-            <span class="stat-val" id="atkVal">10</span>
-        </div>
-        <div class="stat-card">
-            <span style="color: #34d399;">🛡️ قدرت دفاع:</span>
-            <span class="stat-val" id="defVal">10</span>
-        </div>
-    </div>
+    <div class="log-box" id="combatLog">برای حمله روی دکمه یا هیولا ضربه بزن! ⚔️</div>
 
     <!-- دکمه‌ها -->
-    <div class="action-grid">
-        <button class="btn btn-attack" id="attackBtn" onclick="playerAttack()">
-            <span>💥</span>
-            <span>حمله (Attack)</span>
+    <div class="actions">
+        <button class="btn btn-atk" id="attackBtn" onclick="playerAttack()">
+            <span>💥 حمله</span>
         </button>
         <button class="btn btn-auto" id="autoBtn" onclick="toggleAuto()">
-            <span>⚡</span>
-            <span id="autoText">خودکار: خاموش</span>
+            <span id="autoText">⚡ خودکار</span>
         </button>
         <button class="btn btn-shop" onclick="openShop()">
-            <span>🛒</span>
-            <span>فروشگاه</span>
+            <span>🛒 شاپ</span>
         </button>
+        <!-- فوتر جدید -->
+        <footer style="margin-top:15px; text-align:center; color:rgba(255,255,255,0.2); font-size:0.65rem; letter-spacing:0.5px;">
+            V:0.0.2
+        </footer>
     </div>
 
-    <!-- مودال شاپ -->
+    <!-- فروشگاه ماژولار -->
     <div class="modal" id="shopModal">
-        <div class="modal-header">
-            <div class="hero-name">🛒 بازارچه تجهیزات</div>
-            <button class="close-btn" onclick="closeShop()">✕</button>
+        <div class="modal-head">
+            <strong>🛒 بازارچه تجهیزات</strong>
+            <button class="d-btn" onclick="closeShop()">✕</button>
         </div>
-        <div class="shop-tabs">
-            <button class="tab-btn active" onclick="renderShop('swords', this)">⚔️ شمشیرها</button>
-            <button class="tab-btn" onclick="renderShop('shields', this)">🛡️ سپرها</button>
-            <button class="tab-btn" onclick="renderShop('armors', this)">🥋 زره‌ها</button>
-            <button class="tab-btn" onclick="renderShop('potions', this)">🧪 معجون‌ها</button>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="renderShop('swords', this)">⚔️ شمشیر</button>
+            <button class="tab-btn" onclick="renderShop('shields', this)">🛡️ سپر</button>
+            <button class="tab-btn" onclick="renderShop('armors', this)">🥋 زره</button>
+            <button class="tab-btn" onclick="renderShop('potions', this)">🧪 معجون</button>
         </div>
         <div class="shop-list" id="shopList"></div>
     </div>
 </div>
 
 <script>
-    // دیتای اصلی
+    // همون دیتای اورجینال خودت بدون دستکاری
     const SHOP_DATA = {
         swords: [
             { id: 'sw1', name: 'Wooden Sword', attack: 10, gold: 5 },
@@ -571,45 +398,22 @@
         { name: 'Ancient Dragon', icon: '🐉', hp: 800, gold: 80, weight: 0.5 }
     ];
 
-    let player = {
-        name: 'Brave Knight',
-        max_hp: 150,
-        hp: 150,
-        gold: 50,
-        attack: 10,
-        defense: 10,
-        level: 1,
-        xp: 0
-    };
-
+    let player = { name: 'Brave Knight', max_hp: 150, hp: 150, gold: 50, attack: 10, defense: 10, level: 1, xp: 0 };
     let currentEnemy = null;
     let autoInterval = null;
+    let dungeonLevel = 1;
+    let maxUnlockedDungeon = 1;
 
-    // --- Dungeon progression (انتخابی)
-    let dungeonLevel = 1;        // دانجن فعلی (انتخابی)
-    let maxUnlockedDungeon = 1;  // سقف دانجن باز شده
-
-    // --- Balancing knobs (در همینجا بازی رو تنظیم می‌کنی)
     const BALANCE = {
-        hpGrowth: 1.35,     // رشد HP دشمن با دانجن
-        atkGrowth: 1.22,    // رشد Attack دشمن با دانجن
-        goldGrowth: 1.28,   // رشد Gold پایه با دانجن
-        xpGrowth: 1.25,     // رشد XP پایه با دانجن
-
-        // نرف کردن دانجن‌های پایین وقتی سقف باز شد:
-        // هر اختلاف 1 لول پایین‌تر => ضربدر 0.5 (یعنی نصف میشه)، تا حداقل minLowValue
-        lowValuePerDiff: 0.5,
-        minLowValue: 0.08,  // کمتر از 8% نشه که "کاملاً بی‌ارزش" حس نشه
+        hpGrowth: 1.35, atkGrowth: 1.22, goldGrowth: 1.28, xpGrowth: 1.25,
+        lowValuePerDiff: 0.5, minLowValue: 0.08
     };
 
     function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
 
-    // ضریب ارزش دانجن پایین نسبت به سقف باز شده
     function lowValueMultiplier() {
         const diff = Math.max(0, maxUnlockedDungeon - dungeonLevel);
-        // نصف شدن ارزش به ازای هر diff
-        const m = Math.pow(BALANCE.lowValuePerDiff, diff);
-        return Math.max(BALANCE.minLowValue, m);
+        return Math.max(BALANCE.minLowValue, Math.pow(BALANCE.lowValuePerDiff, diff));
     }
 
     function scaleByDungeon(base, growth) {
@@ -632,33 +436,19 @@
         const inp = document.getElementById('dungeonInput');
         inp.max = String(maxUnlockedDungeon);
         inp.value = String(dungeonLevel);
-
-        const m = lowValueMultiplier();
-        const pct = Math.round(m * 100);
-        document.getElementById('dungeonHint').innerText =
-            `ضریب ارزش این دانجن نسبت به سقف باز شده: ${pct}%  (هر لول پایین‌تر معمولاً نصف می‌شه)`;
     }
 
     function setDungeonLevel(newLevel) {
-        const next = clamp(Number(newLevel || 1), 1, maxUnlockedDungeon);
-        dungeonLevel = next;
+        dungeonLevel = clamp(Number(newLevel || 1), 1, maxUnlockedDungeon);
         updateDungeonUI();
         spawnEnemy(true);
-        log(`🕳️ دانجن روی لول ${dungeonLevel} تنظیم شد.`);
+        log(`🕳️ دانجن روی طبقه ${dungeonLevel} تنظیم شد.`);
     }
 
-    function changeDungeon(delta) {
-        setDungeonLevel(dungeonLevel + delta);
-    }
+    function changeDungeon(delta) { setDungeonLevel(dungeonLevel + delta); }
+    function setDungeonFromInput() { setDungeonLevel(document.getElementById('dungeonInput').value); }
 
-    function setDungeonFromInput() {
-        const v = document.getElementById('dungeonInput').value;
-        setDungeonLevel(v);
-    }
-
-    // --- XP / Level سیستم ساده
     function xpToNextLevel(level) {
-        // رشد ملایم: 60, 84, 118, ...
         return Math.round(60 * Math.pow(1.4, level - 1));
     }
 
@@ -667,26 +457,19 @@
         while (player.xp >= xpToNextLevel(player.level)) {
             player.xp -= xpToNextLevel(player.level);
             player.level++;
-
-            // پاداش لول آپ (KISS):
             player.max_hp += 12;
             player.attack += 2;
             player.defense += 1;
             player.hp = player.max_hp;
-
-            log(`✨ لول آپ! الان Lv.${player.level} شدی (+HP/+Atk/+Def)`);
+            log(`✨ لول‌آپ! شدی Lv.${player.level}`);
         }
     }
 
-    // --- دشمن لول‌دار بر اساس دانجن انتخابی
-    function spawnEnemy(resetHpBars) {
+    function spawnEnemy(resetHp) {
         const t = weightedPick(ENEMIES);
-
         const hp = Math.round(scaleByDungeon(t.hp, BALANCE.hpGrowth));
         const baseAtk = Math.max(10, Math.floor(t.hp / 10));
         const atk = Math.max(1, Math.round(scaleByDungeon(baseAtk, BALANCE.atkGrowth)));
-
-        // پاداش‌ها هم با دانجن میرن بالا ولی اگر دانجن خیلی پایین باشه نرف میشه
         const lowM = lowValueMultiplier();
         const gold = Math.max(1, Math.round(scaleByDungeon(t.gold, BALANCE.goldGrowth) * lowM));
         const xpBase = Math.max(1, Math.round(scaleByDungeon(t.gold, BALANCE.xpGrowth) * lowM));
@@ -701,72 +484,59 @@
             xp: xpBase
         };
 
-        if (resetHpBars) updateUI();
         updateUI();
     }
 
-    // حمله پلیر
     function playerAttack() {
         if (!currentEnemy) return;
 
+        // انیمیشن با کلاس فایل خارجی
         const enemyEl = document.getElementById('enemyIcon');
         enemyEl.classList.add('hit');
         setTimeout(() => enemyEl.classList.remove('hit'), 150);
 
         const dmg = player.attack;
         currentEnemy.currentHp = Math.max(0, currentEnemy.currentHp - dmg);
-
-        log(`💥 تو ${dmg} آسیب به ${currentEnemy.name} زدی!`);
+        log(`💥 تو ${dmg} آسیب زدی!`);
 
         if (currentEnemy.currentHp <= 0) {
-            // برد: Gold + XP
             player.gold += currentEnemy.gold;
             addXP(currentEnemy.xp);
-
-            // هیل ۵۰ تایی (همون قبلی)
             player.hp = Math.min(player.max_hp, player.hp + 50);
 
-            // باز شدن دانجن‌های بالاتر:
-            // اگر توی سقف فعلی داری بازی می‌کنی، با هر کیل یکم جلو میره (ساده)
             if (dungeonLevel === maxUnlockedDungeon) {
                 maxUnlockedDungeon++;
-                // خودکار: روی سقف جدید هم می‌تونی بمونی یا دستی انتخاب کنی
             }
-
-            log(`🎉 پیروزی! +${currentEnemy.gold}🪙 و +${currentEnemy.xp}XP  (دانجن باز شده: ${maxUnlockedDungeon})`);
-
+            log(`🎉 پیروزی! +${currentEnemy.gold}🪙 و +${currentEnemy.xp}XP`);
             updateDungeonUI();
             spawnEnemy(true);
         } else {
             setTimeout(enemyAttack, 250);
         }
-
         updateUI();
     }
 
-    // حمله دشمن
     function enemyAttack() {
         if (!currentEnemy || currentEnemy.currentHp <= 0) return;
 
         const finalDmg = Math.max(1, currentEnemy.attack - Math.floor(player.defense / 2));
         player.hp = Math.max(0, player.hp - finalDmg);
 
+        // انیمیشن shake فایل خارجی
         const card = document.getElementById('gameCard');
         card.classList.add('shake');
         setTimeout(() => card.classList.remove('shake'), 250);
 
-        log(`🩸 ${currentEnemy.name} مقدار ${finalDmg} آسیب بهت زد!`);
+        log(`🩸 ${currentEnemy.name} مقدار ${finalDmg} آسیب زد!`);
 
         if (player.hp <= 0) {
-            log(`☠️ باختی! با سلامت کامل برگشتی. (Auto خاموش شد)`);
+            log(`☠️ شکست خوردی! با جون پر برگشتی.`);
             player.hp = player.max_hp;
             if (autoInterval) toggleAuto();
         }
-
         updateUI();
     }
 
-    // حالت خودکار
     function toggleAuto() {
         const autoBtn = document.getElementById('autoBtn');
         const autoText = document.getElementById('autoText');
@@ -775,51 +545,40 @@
             clearInterval(autoInterval);
             autoInterval = null;
             autoBtn.classList.remove('active');
-            autoText.innerText = 'خودکار: خاموش';
+            autoText.innerText = '⚡ خودکار';
         } else {
             autoInterval = setInterval(playerAttack, 600);
             autoBtn.classList.add('active');
-            autoText.innerText = 'خودکار: روشن';
+            autoText.innerText = '⏸️ توقف';
         }
     }
 
-    // سیستم UI
     function updateUI() {
         document.getElementById('goldVal').innerText = player.gold;
         document.getElementById('atkVal').innerText = player.attack;
         document.getElementById('defVal').innerText = player.defense;
-
         document.getElementById('xpVal').innerText = player.xp;
         document.getElementById('playerLevelVal').innerText = player.level;
 
-        // بار سلامت بازیکن
         document.getElementById('playerHpText').innerText = `${player.hp} / ${player.max_hp}`;
-        const playerPct = Math.max(0, (player.hp / player.max_hp) * 100);
-        document.getElementById('playerHpFill').style.width = `${playerPct}%`;
+        document.getElementById('playerHpFill').style.width = `${Math.max(0, (player.hp / player.max_hp) * 100)}%`;
 
-        // بار سلامت دشمن
         if (currentEnemy) {
             document.getElementById('enemyName').innerText = currentEnemy.name;
             document.getElementById('enemyIcon').innerText = currentEnemy.icon;
             document.getElementById('enemyHpText').innerText = `${currentEnemy.currentHp} / ${currentEnemy.maxHp}`;
-            const enemyPct = Math.max(0, (currentEnemy.currentHp / currentEnemy.maxHp) * 100);
-            document.getElementById('enemyHpFill').style.width = `${enemyPct}%`;
+            document.getElementById('enemyHpFill').style.width = `${Math.max(0, (currentEnemy.currentHp / currentEnemy.maxHp) * 100)}%`;
         }
     }
 
-    function log(msg) {
-        document.getElementById('combatLog').innerText = msg;
-    }
+    function log(msg) { document.getElementById('combatLog').innerText = msg; }
 
-    // کنترل فروشگاه
     let currentCategory = 'swords';
     function openShop() {
         document.getElementById('shopModal').classList.add('open');
         renderShop('swords', document.querySelector('.tab-btn'));
     }
-    function closeShop() {
-        document.getElementById('shopModal').classList.remove('open');
-    }
+    function closeShop() { document.getElementById('shopModal').classList.remove('open'); }
 
     function renderShop(category, btn) {
         currentCategory = category;
@@ -831,20 +590,20 @@
 
         SHOP_DATA[category].forEach(item => {
             let statText = '';
-            if (item.attack) statText = `+${item.attack} Attack`;
-            if (item.defense) statText = `+${item.defense} Defense`;
+            if (item.attack) statText = `+${item.attack} Atk`;
+            if (item.defense) statText = `+${item.defense} Def`;
             if (item.max_hp) statText = `+${item.max_hp} Max HP`;
-            if (item.heal) statText = `+${item.heal} HP Heal`;
+            if (item.heal) statText = `+${item.heal} HP`;
 
             const canBuy = player.gold >= item.gold;
             const el = document.createElement('div');
-            el.className = 'shop-item';
+            el.className = 'shop-row';
             el.innerHTML = `
-                <div class="shop-item-info">
-                    <span class="shop-item-name">${item.name}</span>
-                    <span class="shop-item-stat">${statText}</span>
+                <div>
+                    <div><strong>${item.name}</strong></div>
+                    <div style="font-size:0.7rem; color:#34d399">${statText}</div>
                 </div>
-                <button class="btn-buy" ${canBuy ? '' : 'disabled'} onclick="buyItem('${category}', '${item.id}')">
+                <button class="buy-btn" ${canBuy ? '' : 'disabled'} onclick="buyItem('${category}', '${item.id}')">
                     🪙 ${item.gold}
                 </button>
             `;
@@ -860,34 +619,26 @@
 
         if (category === 'potions') {
             player.hp = Math.min(player.max_hp, player.hp + item.heal);
-            log(`🧪 معجون ${item.name} خوردی!`);
+            log(`🧪 استفاده از ${item.name}`);
         } else if (category === 'armors') {
             player.max_hp += item.max_hp;
             player.hp += item.max_hp;
-            log(`🛡️ زره ${item.name} پوشیدی! Max HP اضافه شد.`);
+            log(`🥋 پوشیدن ${item.name}`);
         } else if (category === 'swords') {
             player.attack = item.attack;
-            log(`⚔️ شمشیر ${item.name} تجهیز شد!`);
+            log(`⚔️ مجهز شدی به ${item.name}`);
         } else if (category === 'shields') {
             player.defense = item.defense;
-            log(`🛡️ سپر ${item.name} تجهیز شد!`);
+            log(`🛡️ مجهز شدی به ${item.name}`);
         }
 
         updateUI();
         renderShop(category);
     }
 
-    // شروع
     updateDungeonUI();
     spawnEnemy(true);
     updateUI();
-</script>
-<script>
-// جلوگیری از کشیدگی عمودی در وب‌ویو برنامک
-document.addEventListener('touchmove', function (e) {
-    if (e.target.closest('.shop-list')) return; // فقط لیست فروشگاه اسکرول بخوره
-    e.preventDefault();
-}, { passive: false });
 </script>
 </body>
 </html>
